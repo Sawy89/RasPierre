@@ -9,15 +9,25 @@ Provo a creare il DB piscina
 
 import os
 import sys
-from sqlalchemy import Column, ForeignKey, Integer, String, Date
+from sqlalchemy import Column, ForeignKey, Integer, String, Date, and_
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy import create_engine
 import pandas as pd
 import datetime
+from dateutil.relativedelta import relativedelta
+
+from flask import Blueprint, render_template, url_for, request
 
 # creo un'istanza per poi passarla come eridità
 Base = declarative_base()
+
+# Create engine
+engine = create_engine('sqlite:///sport.db')
+Base.metadata.create_all(engine)
+# Bind Base to engine
+Base.metadata.bind = engine
+DBSession = sessionmaker(bind=engine)
 
 
 #%% Tabelle
@@ -99,8 +109,45 @@ def restorePiscinaAllenamenti(filename, session):
         # carico
         session.add(a)
         session.commit()
+
+
+#%% SITO
+
+# Blueprint per andare online
+piscina_flask = Blueprint('account_api', __name__, template_folder='templates_piscina')
+
+@piscina_flask.route('/')
+def piscinaMain():
+    '''
+    pagina principale della piscina
+    '''
+    # Creo delle date di default
+    start_date_def = (datetime.datetime.now()-relativedelta(years=1)).strftime('%Y-%m-%d')
+    stop_date_def = (datetime.datetime.now()+datetime.timedelta(days=1)).strftime('%Y-%m-%d')
     
+    return render_template('piscina_main.html', start_date_def=start_date_def, stop_date_def=stop_date_def)
+
+
+#@piscina_flask.route('/allenamenti/<date:start_date>to<date:stop_date>/print')
+@piscina_flask.route('/allenamenti/print')
+def piscinaPrint():
+    '''
+    Pagina con l'elenco degli allenamenti nel periodo selezionato
+    '''
+    # input GET
+#    start_date = request.form['start_date'] # per i POD devo usare questi
+#    stop_date = request.form['stop_date']
+    if request.method == 'GET':
+        start_date = request.args.get('start_date', '')
+        stop_date = request.args.get('stop_date', '')
+
+    # Scarico i dati da DB
+    session = DBSession()
+    allen = session.query(PiscinaAllenamento).filter(and_(
+            PiscinaAllenamento.data>=datetime.datetime.strptime(start_date,'%Y-%m-%d'), 
+            PiscinaAllenamento.data<datetime.datetime.strptime(stop_date,'%Y-%m-%d')))
+    session.close()
     
-    
-    
+    return render_template('piscina_print.html', allen=allen, start_date=start_date, stop_date=stop_date)
+
     

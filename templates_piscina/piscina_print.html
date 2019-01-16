@@ -1,0 +1,15 @@
+<html>
+
+<body>
+<h1>Piscina: lista allenamenti tra {{start_date}} e {{stop_date}}</h1>
+
+{% for i in allen %}
+<div>
+<p>{{i.data}}</p>
+<p>{{i.n_vasche}}</p>
+</div>
+{% endfor %}
+
+</body>
+
+</html>

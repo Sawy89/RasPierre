@@ -11,38 +11,30 @@ from sqlalchemy import create_engine
 import Piscina
 from Piscina import Base
 from sqlalchemy.orm import sessionmaker
+from Piscina import *
+
+
+from flask import Flask
+app = Flask(__name__)
+app.register_blueprint(piscina_flask, url_prefix='/piscina')
+
+@app.route('/')
+@app.route('/hello')
+def HelloWorld():
+    return "Hello World"
+
+if __name__ == '__main__':
+    app.debug = True
+    app.run(host='0.0.0.0', port=5000)
+
+
 
 
 #%% MAIN Piscina
 #if __name__ == '__main__':
 
 # Creo DB engine
-engine = create_engine('sqlite:///sport.db')
+#engine = create_engine('sqlite:///sport.db')
 
 # Creo il DB
-Base.metadata.create_all(engine)
-
-#%% Ricarico i vecchi dati
-
-# Bind Base to engine
-Base.metadata.bind = engine
-DBSession = sessionmaker(bind=engine)
-
-# open session
-session = DBSession()
-
-# Carico la lista delle piscine
-#Piscina.restoreNomePiscina(session)
-
-# Carico la lista degli allenamenti
-filename = 'static/Piscina.csv'
-Piscina.restorePiscinaAllenamenti(filename, session)
-
-
-
-# %% prova query
-import pandas as pd
-query = 'SELECT * FROM piscina_allenamenti'
-aaa = pd.read_sql(query, engine)
-
-session.close()
+#Base.metadata.create_all(engine)

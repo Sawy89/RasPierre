@@ -1,0 +1,19 @@
+<html>
+
+<body>
+<h1>Piscina</h1>
+
+<form action="{{url_for('account_api.piscinaPrint')}}" method='GET'>
+
+<p>Data inizio:</p>
+<input type='date' size='30' name='start_date' value='{{start_date_def}}'>
+
+<p>Data fine:</p>
+<input type='date' size='30' name='stop_date' value='{{stop_date_def}}'>
+
+<input type='submit' value='Vai!'>
+</form>
+
+</body>
+
+</html>
