@@ -1,4 +1,7 @@
 <html>
+<head>
+	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+</head>
 
 <body>
     <h1>Piscina</h1>
@@ -19,16 +22,18 @@
     
     <!-- Piscine -->
     <h2>Piscine:</h2>
-    <div>
+    <ul>
         {% for i in piscina %}
-        <p>{{i.id}}) {{i.nome}} - {{i.lung_vasche}} metri 
-            <a href='{{url_for('account_api.piscinaInsert', piscina_id=i.id)}}'>Inserisci nuovo allenamento</a>
-            <form action="{{url_for('account_api.piscinaNomeDelete', id_nome_piscina=i.id)}}" method='post'>
-                <input type='submit', value ='Cancella!'>
-            </form>
-        </p>
+        <li>{{i.PiscinaLocation.nome}} - {{i.PiscinaLocation.lung_vasche}} metri 
+            <a href='{{url_for('account_api.piscinaInsert', piscina_id=i.PiscinaLocation.id)}}'>Inserisci nuovo allenamento</a>
+            {% if i.Nallenamenti==0 %}
+                <form action="{{url_for('account_api.piscinaNomeDelete', id_nome_piscina=i.PiscinaLocation.id)}}" method='post'>
+                    <input type='submit', value ='Cancella!'>
+                </form>
+            {% endif %}
+        </li>
         {% endfor %}
-    </div>
+    </ul>
     <div>
         <a href='{{url_for('account_api.piscinaNomeInsert')}}'>Inserisci nuova piscina</a>
     </div>

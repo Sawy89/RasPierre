@@ -7,7 +7,7 @@ Provo a creare il DB piscina
 @author: ddeen
 """
 
-from sqlalchemy import Column, ForeignKey, Integer, String, Date, and_
+from sqlalchemy import Column, ForeignKey, Integer, String, Date, and_, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy import create_engine
@@ -122,6 +122,8 @@ def piscinaMain():
     # Lista delle piscine
     session = DBSession()
     piscina = session.query(PiscinaLocation)
+    piscina = session.query(PiscinaLocation, func.count(PiscinaAllenamento.id).label('Nallenamenti')
+                            ).outerjoin(PiscinaAllenamento).group_by(PiscinaLocation.nome).all()
     
     # Creo delle date di default
     start_date_def1 = (datetime.datetime.now()-relativedelta(years=1)).replace(day=1).strftime('%Y-%m-%d') # l'ultimo anno

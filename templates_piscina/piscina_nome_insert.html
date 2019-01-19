@@ -1,0 +1,16 @@
+<html>
+
+<body>
+    
+    <h1>Inserisci una nuova piscina!</h1>
+    
+    <!-- Form per inserire un nuovo allenamento -->
+    <form action="{{url_for('account_api.piscinaNomeInsert')}}" method='post'>
+        <input type="text" name="nome" size="20">
+        <input type="number" name="lung_vasche" min="1" max="100">
+        <input type='submit', value ='Inserisci!'>
+    </form>
+
+</body>
+
+</html>
