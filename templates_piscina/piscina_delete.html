@@ -3,7 +3,8 @@
     <body>
         
         <h1>Sei sicuro di voler cancellare l'allenamento: {{allen1.data}} {{allen1.nome_piscina.nome}} - {{allen1.n_vasche}}?</h1>
-
+        
+        <!-- Form per cancellare l'allenamento pre-selezionato -->
         <form action="{{url_for('account_api.piscinaDelete',allen_id=allen1.id)}}" method='post'>
             <input type='submit', value ='Cancella!'>
         </form>

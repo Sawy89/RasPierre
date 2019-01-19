@@ -16,7 +16,7 @@ from sqlalchemy import create_engine
 import pandas as pd
 import datetime
 from dateutil.relativedelta import relativedelta
-
+from highcharts import Highchart
 from flask import Blueprint, render_template, url_for, request, redirect
 
 # creo un'istanza per poi passarla come eridità
@@ -126,13 +126,14 @@ def piscinaMain():
     piscina = session.query(PiscinaLocation)
     
     # Creo delle date di default
-    start_date_def = (datetime.datetime.now()-relativedelta(years=1)).strftime('%Y-%m-%d')
-    stop_date_def = (datetime.datetime.now()+datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+    start_date_def1 = (datetime.datetime.now()-relativedelta(years=1)).replace(day=1).strftime('%Y-%m-%d') # l'ultimo anno
+    start_date_def2 = (datetime.datetime.now()-datetime.timedelta(days=10)).replace(day=1).strftime('%Y-%m-%d') # l'ultimo mese
+    stop_date_def = (datetime.datetime.now()+datetime.timedelta(days=1)).strftime('%Y-%m-%d') # domani
     
-    return render_template('piscina_main.html', piscina=piscina, start_date_def=start_date_def, stop_date_def=stop_date_def)
+    return render_template('piscina_main.html', piscina=piscina, 
+                           start_date_def1=start_date_def1, start_date_def2=start_date_def2, stop_date_def=stop_date_def)
 
 
-#@piscina_flask.route('/allenamenti/<date:start_date>to<date:stop_date>/print')
 @piscina_flask.route('/allenamenti/print')
 def piscinaPrint():
     '''
@@ -153,6 +154,52 @@ def piscinaPrint():
     session.close()
     
     return render_template('piscina_print.html', allen=allen, start_date=start_date, stop_date=stop_date)
+
+
+@piscina_flask.route('/allenamenti/stat')
+def piscinaStat():
+    '''
+    Pagina con le statistiche degli allenamenti nel periodo selezionato
+    '''
+    # input GET
+    if request.method == 'GET':
+        start_date = request.args.get('start_date', '')
+        stop_date = request.args.get('stop_date', '')
+    
+    # Scarico i dati da DB: allenamenti compresi tra le date specificate
+    query_text = ("""SELECT strftime('%Y',data) AS anno
+                 , strftime('%m',data) AS mese
+                 , count(0) AS Nvolte
+                 , sum(n_vasche) AS somma_vasche
+                 , round(avg(n_vasche * 25 / lung_vasche), 1) AS media_vasche
+                 , sum(n_vasche * 25 / lung_vasche) AS somma_metri
+                 , round(avg(n_vasche * lung_vasche), 0) AS media_metri
+            FROM piscina_allenamenti
+            JOIN nome_piscina
+                ON piscina_allenamenti.id_nome_piscina = nome_piscina.id
+            WHERE data >= date('"""+start_date+"""')
+                AND data < date('"""+stop_date+"""')
+            GROUP BY
+              anno
+            , mese""")
+    dati = pd.read_sql_query(query_text, engine)
+    
+    # 1st chart
+    chart = Highchart(width = 600, height = 500)
+    dff=[]
+    for i in range(len(dati)):
+        dff.append(str(dati.anno[i])+'/'+str(dati.mese[i]))
+    
+    chart.set_options('xAxis', {'categories': dff})
+    chart.set_options('tooltip', {'formatter': 'default_tooltip'})
+    chart.set_options('title', {'text': 'Statistiche mensili allenamenti'})
+    chart.add_data_set(dati.Nvolte.values.tolist(), series_type='bar', name='Numero allenamenti')
+    chart.add_data_set(dati.somma_metri.values.tolist(), series_type='bar', name='Somma metri')
+    chart.htmlcontent;
+    
+    return render_template('piscina_stat.html', start_date=start_date, stop_date=stop_date, 
+                           df1=dati.to_html(classes='table',index=False,escape=True).replace('<th>','<th style = "background-color: #66ccff"	>'), 
+                               fig1_head=chart.htmlheader, fig1_body=chart.content)
 
 
 @piscina_flask.route('/allenamenti/insert/<int:piscina_id>', methods=['GET', 'POST'])

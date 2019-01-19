@@ -1,8 +1,10 @@
 <html>
 
     <body>
-        <h1>Piscina</h1>
+        <h1>Piscina allenamenti</h1>
         
+        <!-- Piscine -->
+        <h2>Lista delle piscine:</h2>
         <ul>
             {% for i in piscina %}
             <li>{{i.id}}) {{i.nome}} - {{i.lung_vasche}} metri 
@@ -10,15 +12,30 @@
             </li>
             {% endfor %}
         </ul>
-        <br><br>
-
+        <br>
+        
+        <!-- Form per allenamenti: print -->
+        <h2>Allenamenti: vai alla lista!</h2>
         <form action="{{url_for('account_api.piscinaPrint')}}" method='GET'>
-            <p>Data inizio:</p>
-            <input type='date' size='30' name='start_date' value='{{start_date_def}}'>
-
-            <p>Data fine:</p>
+            <span>Data inizio:</span>
+            <input type='date' size='30' name='start_date' value='{{start_date_def2}}'>
+            <br>
+            <span>Data fine:</span>
             <input type='date' size='30' name='stop_date' value='{{stop_date_def}}'>
-
+            <br>
+            <input type='submit' value='Vai!'>
+        </form>
+        <br>
+        
+        <!-- Form per allenamenti: grafico -->
+        <h2>Allenamenti: vai alle statistiche!</h2>
+        <form action="{{url_for('account_api.piscinaStat')}}" method='GET'>
+            <span>Data inizio:</span>
+            <input type='date' size='30' name='start_date' value='{{start_date_def1}}'>
+            <br>
+            <span>Data fine:</span>
+            <input type='date' size='30' name='stop_date' value='{{stop_date_def}}'>
+            <br>
             <input type='submit' value='Vai!'>
         </form>
 
