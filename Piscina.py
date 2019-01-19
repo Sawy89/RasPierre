@@ -17,7 +17,7 @@ import pandas as pd
 import datetime
 from dateutil.relativedelta import relativedelta
 
-from flask import Blueprint, render_template, url_for, request
+from flask import Blueprint, render_template, url_for, request, redirect
 
 # creo un'istanza per poi passarla come eridità
 Base = declarative_base()
@@ -113,7 +113,7 @@ def restorePiscinaAllenamenti(filename, session):
 
 #%% SITO
 
-# Blueprint per andare online
+# Blueprint per andare online 
 piscina_flask = Blueprint('account_api', __name__, template_folder='templates_piscina')
 
 @piscina_flask.route('/')
@@ -121,11 +121,15 @@ def piscinaMain():
     '''
     pagina principale della piscina
     '''
+    # Lista delle piscine
+    session = DBSession()
+    piscina = session.query(PiscinaLocation)
+    
     # Creo delle date di default
     start_date_def = (datetime.datetime.now()-relativedelta(years=1)).strftime('%Y-%m-%d')
     stop_date_def = (datetime.datetime.now()+datetime.timedelta(days=1)).strftime('%Y-%m-%d')
     
-    return render_template('piscina_main.html', start_date_def=start_date_def, stop_date_def=stop_date_def)
+    return render_template('piscina_main.html', piscina=piscina, start_date_def=start_date_def, stop_date_def=stop_date_def)
 
 
 #@piscina_flask.route('/allenamenti/<date:start_date>to<date:stop_date>/print')
@@ -141,7 +145,7 @@ def piscinaPrint():
         start_date = request.args.get('start_date', '')
         stop_date = request.args.get('stop_date', '')
 
-    # Scarico i dati da DB
+    # Scarico i dati da DB: allenamenti compresi tra le date specificate
     session = DBSession()
     allen = session.query(PiscinaAllenamento).filter(and_(
             PiscinaAllenamento.data>=datetime.datetime.strptime(start_date,'%Y-%m-%d'), 
@@ -150,4 +154,54 @@ def piscinaPrint():
     
     return render_template('piscina_print.html', allen=allen, start_date=start_date, stop_date=stop_date)
 
+
+@piscina_flask.route('/allenamenti/insert/<int:piscina_id>', methods=['GET', 'POST'])
+def piscinaInsert(piscina_id):
+    '''
+    Form per inserire un nuovo allenamento nella piscina selezionata
+    '''
+    # Scarico la piscina selezionata
+    session = DBSession()
+    piscina1 = session.query(PiscinaLocation).filter_by(id=piscina_id).one()
+    
+    if request.method == 'POST':
+        # INSERIMENTO ALLENAMENTO
+        # Leggo gli input
+        allen_date = datetime.datetime.strptime(request.form['allen_date'],'%Y-%m-%d').date()
+        n_vasche = int(request.form['n_vasche'])
+        # creo oggetto allenamento
+        a = PiscinaAllenamento(data=allen_date, id_nome_piscina=piscina_id, n_vasche=n_vasche)
+        # carico
+        session.add(a)
+        session.commit()
+        session.close()
+        return redirect(url_for('account_api.piscinaMain')) # return alla pagina iniziale
+    else:
+        # PAGINA DI INSERIMENTO
+        return render_template('piscina_insert.html', piscina1=piscina1)
+
+
+@piscina_flask.route('/allenamenti/delete/<int:allen_id>', methods=['GET', 'POST'])
+#@piscina_flask.route('/allenamenti/delete', methods=['GET', 'POST'])
+#@piscina_flask.route('/allenamenti/delete?allen_id=195<int:allen_id>', methods=['GET', 'POST'])
+def piscinaDelete(allen_id):
+    '''
+    Pagina per cancellare un allenamento inserito
+    '''
+    # Scarico l'allenamento selezionato
+    session = DBSession()
+    allen1 = session.query(PiscinaAllenamento).filter_by(id=allen_id).one()
+    
+    if request.method == 'POST':
+        # CANCELLAMENTO ALLENAMENTO
+        # cancello l'elemento
+        session.delete(allen1)
+        session.commit()
+        session.close()
+        # Ricarico la lista di prima
+        return redirect(url_for('account_api.piscinaMain'))
+    else:
+        # PAGINA DI CANCELLAMENTO
+        return render_template('piscina_delete.html', allen1=allen1)
+    
     
