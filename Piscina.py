@@ -170,9 +170,9 @@ def piscinaStat():
     query_text = ("""SELECT strftime('%Y',data) AS anno
                  , strftime('%m',data) AS mese
                  , count(0) AS Nvolte
-                 , sum(n_vasche) AS somma_vasche
+                 , sum(n_vasche * 25 / lung_vasche) AS somma_vasche
                  , round(avg(n_vasche * 25 / lung_vasche), 1) AS media_vasche
-                 , sum(n_vasche * 25 / lung_vasche) AS somma_metri
+                 , sum(n_vasche * lung_vasche) AS somma_metri
                  , round(avg(n_vasche * lung_vasche), 0) AS media_metri
             FROM piscina_allenamenti
             JOIN nome_piscina
@@ -183,17 +183,18 @@ def piscinaStat():
               anno
             , mese""")
     dati = pd.read_sql_query(query_text, engine)
+    dati['media_metri'] = dati['media_metri'].astype('int')
     
-    # 1st chart
+    # Grafico
     chart = Highchart(width = 600, height = 500)
     dff=[]
     for i in range(len(dati)):
         dff.append(str(dati.anno[i])+'/'+str(dati.mese[i]))
-    
-    chart.set_options('xAxis', {'categories': dff})
+    chart.set_options('xAxis', {'categories': dff, 'gridLineWidth': 1})
     chart.set_options('tooltip', {'formatter': 'default_tooltip'})
     chart.set_options('title', {'text': 'Statistiche mensili allenamenti'})
     chart.add_data_set(dati.Nvolte.values.tolist(), series_type='bar', name='Numero allenamenti')
+    chart.add_data_set(dati.media_metri.values.tolist(), series_type='line', name='Media metri')
     chart.add_data_set(dati.somma_metri.values.tolist(), series_type='bar', name='Somma metri')
     chart.htmlcontent;
     
