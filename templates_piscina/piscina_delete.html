@@ -1,12 +1,15 @@
 <html>
+<head>
+	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+</head>
 
 <body>
-    
-    <h1>Sei sicuro di voler cancellare l'allenamento: {{allen1.data}} a {{allen1.nome_piscina.nome}} - {{allen1.n_vasche}} vasche?</h1>
+    <h1>Cancellamento allenamento</h1>
+    <p>Sei sicuro di voler cancellare l'allenamento: <strong>{{allen1.data}} a {{allen1.nome_piscina.nome}} - {{allen1.n_vasche}} vasche?</strong></p>
     
     <!-- Form per cancellare l'allenamento pre-selezionato -->
     <form action="{{url_for('account_api.piscinaDelete',allen_id=allen1.id)}}" method='post'>
-        <input type='submit', value ='Cancella!'>
+        <input class="button1" type='submit', value ='Cancella!'>
     </form>
 
 </body>

@@ -5,65 +5,75 @@
 
 <body>
     <h1>Piscina</h1>
-    
-    <!-- Messaggi flash -->
-    <div class = 'flash'>
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <ul>
-                {% for message in messages %}
-                    <li> <strong> {{ message }} </strong> </li>
-                {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
+    <div class="pane">
+        <!-- Messaggi flash -->
+        <div class='flash'>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <ul>
+                    {% for message in messages %}
+                        <li> <strong> {{ message }} </strong> </li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
 
+        </div>
+        
+        <!-- Piscine -->
+        <div class="pane_sotto">
+        <h2 class="header">Piscine:</h2>
+        <ul>
+            {% for i in piscina %}
+            <li>{{i.PiscinaLocation.nome}} - {{i.PiscinaLocation.lung_vasche}} metri 
+                <a href='{{url_for('account_api.piscinaInsert', piscina_id=i.PiscinaLocation.id)}}'>Inserisci nuovo allenamento</a>
+                {% if i.Nallenamenti==0 %}
+                    <form action="{{url_for('account_api.piscinaNomeDelete', id_nome_piscina=i.PiscinaLocation.id)}}" method='post'>
+                        <input type='submit', value ='Cancella!'>
+                    </form>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        <div>
+            <a class="button1" href='{{url_for('account_api.piscinaNomeInsert')}}'>Inserisci nuova piscina</a>
+        </div>
+        <br><br>
+        </div>
+        
+        <!-- Form per allenamenti: print -->
+        <div class="pane_sotto">
+        <h2 class="header">Allenamenti: vai alla lista!</h2>
+        <form action="{{url_for('account_api.piscinaPrint')}}" method='GET'>
+            <div>
+                <span>Data inizio:</span>
+                <input class="price" type='date' size='30' name='start_date' value='{{start_date_def2}}'>
+            </div><br>
+            <div>
+                <span>Data fine:</span>
+                <input class="price" type='date' size='30' name='stop_date' value='{{stop_date_def}}'>
+            </div><br>
+            <input class="button1" type='submit' value='Vai!'>
+        </form>
+        <br><br>
+        </div>
+        
+        <!-- Form per allenamenti: grafico -->
+        <div class="pane_sotto">
+        <h2 class="header">Allenamenti: vai alle statistiche!</h2>
+        <form action="{{url_for('account_api.piscinaStat')}}" method='GET'>
+            <div>
+                <span>Data inizio:</span>
+                <input class="price" type='date' size='30' name='start_date' value='{{start_date_def1}}'>
+            </div><br>
+            <div>
+                <span>Data fine:</span>
+                <input class="price" type='date' size='30' name='stop_date' value='{{stop_date_def}}'>
+            </div><br>
+            <input class="button1" type='submit' value='Vai!'>
+        </form>
+        </div>
     </div>
-    
-    <!-- Piscine -->
-    <h2>Piscine:</h2>
-    <ul>
-        {% for i in piscina %}
-        <li>{{i.PiscinaLocation.nome}} - {{i.PiscinaLocation.lung_vasche}} metri 
-            <a href='{{url_for('account_api.piscinaInsert', piscina_id=i.PiscinaLocation.id)}}'>Inserisci nuovo allenamento</a>
-            {% if i.Nallenamenti==0 %}
-                <form action="{{url_for('account_api.piscinaNomeDelete', id_nome_piscina=i.PiscinaLocation.id)}}" method='post'>
-                    <input type='submit', value ='Cancella!'>
-                </form>
-            {% endif %}
-        </li>
-        {% endfor %}
-    </ul>
-    <div>
-        <a href='{{url_for('account_api.piscinaNomeInsert')}}'>Inserisci nuova piscina</a>
-    </div>
-    <br>
-    
-    <!-- Form per allenamenti: print -->
-    <h2>Allenamenti: vai alla lista!</h2>
-    <form action="{{url_for('account_api.piscinaPrint')}}" method='GET'>
-        <span>Data inizio:</span>
-        <input type='date' size='30' name='start_date' value='{{start_date_def2}}'>
-        <br>
-        <span>Data fine:</span>
-        <input type='date' size='30' name='stop_date' value='{{stop_date_def}}'>
-        <br>
-        <input type='submit' value='Vai!'>
-    </form>
-    <br>
-    
-    <!-- Form per allenamenti: grafico -->
-    <h2>Allenamenti: vai alle statistiche!</h2>
-    <form action="{{url_for('account_api.piscinaStat')}}" method='GET'>
-        <span>Data inizio:</span>
-        <input type='date' size='30' name='start_date' value='{{start_date_def1}}'>
-        <br>
-        <span>Data fine:</span>
-        <input type='date' size='30' name='stop_date' value='{{stop_date_def}}'>
-        <br>
-        <input type='submit' value='Vai!'>
-    </form>
-
 </body>
 
 </html>

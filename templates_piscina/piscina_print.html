@@ -1,17 +1,20 @@
 <html>
+<head>
+	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+</head>
 
-    <body>
-        <h1>Piscina: lista allenamenti tra {{start_date}} e {{stop_date}}</h1>
-        
-        <!-- Lista degli allenamenti con link per cancellarli -->
-        <ul>
-            {% for i in allen %}
-                <li>{{i.data}} {{i.nome_piscina.nome}} - {{i.n_vasche}} 
-                <a href='{{url_for('account_api.piscinaDelete', allen_id=i.id)}}'>Cancella</a>
-                </li>
-            {% endfor %}
-        </ul>
+<body>
+    <h1>Piscina: lista allenamenti tra {{start_date}} e {{stop_date}}</h1>
+    
+    <!-- Lista degli allenamenti con link per cancellarli -->
+    <ul>
+        {% for i in allen %}
+            <li>{{i.data}} {{i.nome_piscina.nome}} - {{i.n_vasche}} 
+            <a href='{{url_for('account_api.piscinaDelete', allen_id=i.id)}}'>Cancella</a>
+            </li>
+        {% endfor %}
+    </ul>
 
-    </body>
+</body>
 
 </html>
