@@ -12,11 +12,14 @@ import Piscina
 from Piscina import Base
 from sqlalchemy.orm import sessionmaker
 from Piscina import *
-
-
 from flask import Flask
+
+# ??
+SECRET_KEY = '42o108'
+
 app = Flask(__name__)
 app.register_blueprint(piscina_flask, url_prefix='/piscina')
+app.secret_key = SECRET_KEY
 
 @app.route('/')
 @app.route('/hello')

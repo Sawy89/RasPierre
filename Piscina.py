@@ -7,8 +7,6 @@ Provo a creare il DB piscina
 @author: ddeen
 """
 
-import os
-import sys
 from sqlalchemy import Column, ForeignKey, Integer, String, Date, and_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
@@ -17,7 +15,7 @@ import pandas as pd
 import datetime
 from dateutil.relativedelta import relativedelta
 from highcharts import Highchart
-from flask import Blueprint, render_template, url_for, request, redirect
+from flask import Blueprint, render_template, url_for, request, redirect, flash , get_flashed_messages
 
 # creo un'istanza per poi passarla come eridità
 Base = declarative_base()
@@ -223,6 +221,7 @@ def piscinaInsert(piscina_id):
         session.add(a)
         session.commit()
         session.close()
+        flash("Inserito nuovo allenamento!")
         return redirect(url_for('account_api.piscinaMain')) # return alla pagina iniziale
     else:
         # PAGINA DI INSERIMENTO
@@ -246,10 +245,51 @@ def piscinaDelete(allen_id):
         session.delete(allen1)
         session.commit()
         session.close()
-        # Ricarico la lista di prima
+        flash("Eliminato allenamento!")
         return redirect(url_for('account_api.piscinaMain'))
     else:
         # PAGINA DI CANCELLAMENTO
         return render_template('piscina_delete.html', allen1=allen1)
     
-    
+
+@piscina_flask.route('/insert', methods=['GET', 'POST'])
+def piscinaNomeInsert():
+    '''
+    Form per inserire una nuova piscina
+    '''
+    if request.method == 'POST':
+        # INSERIMENTO PISCINA
+        session = DBSession()
+        # Leggo gli input
+        nome = request.form['nome']
+        lung_vasche = int(request.form['lung_vasche'])
+        # creo oggetto allenamento
+        p1 = PiscinaLocation(nome=nome, lung_vasche=lung_vasche)
+        # carico
+        session.add(p1)
+        session.commit()
+        session.close()
+        flash("Inserito nuova piscina!")
+        return redirect(url_for('account_api.piscinaMain')) # return alla pagina iniziale
+    else:
+        # PAGINA DI INSERIMENTO
+        return render_template('piscina_nome_insert.html') 
+
+
+@piscina_flask.route('/delete/<int:id_nome_piscina>', methods=['POST'])
+def piscinaNomeDelete(id_nome_piscina):
+    '''
+    Form per cancellare una piscina
+    '''
+    if request.method == 'POST':
+        # CANCELLO PISCINA
+        session = DBSession()
+        # cercao oggetto piscina da eliminare
+        p1 = session.query(PiscinaLocation).filter_by(id=id_nome_piscina).one()
+        # carico
+        session.delete(p1)
+        session.commit()
+        session.close()
+        flash("Cancellata piscina!")
+        return redirect(url_for('account_api.piscinaMain')) # return alla pagina iniziale
+
