@@ -199,7 +199,7 @@ def piscinaStat():
     chart.htmlcontent;
     
     return render_template('piscina_stat.html', start_date=start_date, stop_date=stop_date, 
-                           df1=dati.to_html(classes='table',index=False,escape=True).replace('<th>','<th style = "background-color: #66ccff"	>'), 
+                           df1=dati.to_html(classes='table',index=False,escape=True).replace('<th>','<th style = "background-color: #000099"	>'), 
                                fig1_head=chart.htmlheader, fig1_body=chart.content)
 
 

@@ -4,6 +4,7 @@ body {
     margin:20px;
 }
 
+
 h1,
 h2,
 h3,
@@ -39,7 +40,10 @@ a {
 
 span
 , li {
+    color: #ffffcc;
+}
 
+table {
     color: #ffffcc;
 }
 
@@ -85,8 +89,8 @@ span
 .editdeletepane {}
 
 .flash {
-    background: #cee5f5;
-    color:#ff0000
+    background: #000099;
+    color:#000099
 }
 
 .button1{
@@ -103,4 +107,13 @@ span
     margin:auto;
     display:block;
     cursor:pointer;
+    clear:top;
 }
+
+#inner1{
+float:left; 
+}
+#inner2{
+float:left; 
+clear: left;
+} 
