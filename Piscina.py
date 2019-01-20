@@ -227,7 +227,7 @@ def piscinaInsert(piscina_id):
         return redirect(url_for('account_api.piscinaMain')) # return alla pagina iniziale
     else:
         # PAGINA DI INSERIMENTO
-        return render_template('piscina_insert.html', piscina1=piscina1)
+        return render_template('piscina_insert.html', piscina1=piscina1, datanow=datetime.datetime.now())
 
 
 @piscina_flask.route('/allenamenti/delete/<int:allen_id>', methods=['GET', 'POST'])
