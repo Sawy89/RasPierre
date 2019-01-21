@@ -27,9 +27,9 @@
         <ul>
             {% for i in piscina %}
             <li>{{i.PiscinaLocation.nome}} - {{i.PiscinaLocation.lung_vasche}} metri 
-                <a href='{{url_for('account_api.piscinaInsert', piscina_id=i.PiscinaLocation.id)}}'>Inserisci nuovo allenamento</a>
+                <a href='{{url_for('piscina_flask.piscinaInsert', piscina_id=i.PiscinaLocation.id)}}'>Inserisci nuovo allenamento</a>
                 {% if i.Nallenamenti==0 %}
-                    <form action="{{url_for('account_api.piscinaNomeDelete', id_nome_piscina=i.PiscinaLocation.id)}}" method='post'>
+                    <form action="{{url_for('piscina_flask.piscinaNomeDelete', id_nome_piscina=i.PiscinaLocation.id)}}" method='post'>
                         <input type='submit', value ='Cancella!'>
                     </form>
                 {% endif %}
@@ -37,7 +37,7 @@
             {% endfor %}
         </ul>
         <div>
-            <a class="button1" href='{{url_for('account_api.piscinaNomeInsert')}}'>Inserisci nuova piscina</a>
+            <a class="button1" href='{{url_for('piscina_flask.piscinaNomeInsert')}}'>Inserisci nuova piscina</a>
         </div>
         <br><br>
         </div>
@@ -45,7 +45,7 @@
         <!-- Form per allenamenti: print -->
         <div class="pane_sotto">
         <h2 class="header">Allenamenti: vai alla lista!</h2>
-        <form action="{{url_for('account_api.piscinaPrint')}}" method='GET'>
+        <form action="{{url_for('piscina_flask.piscinaPrint')}}" method='GET'>
             <div>
                 <span>Data inizio:</span>
                 <input class="price" type='date' size='30' name='start_date' value='{{start_date_def2}}'>
@@ -62,7 +62,7 @@
         <!-- Form per allenamenti: grafico -->
         <div class="pane_sotto">
         <h2 class="header">Allenamenti: vai alle statistiche!</h2>
-        <form action="{{url_for('account_api.piscinaStat')}}" method='GET'>
+        <form action="{{url_for('piscina_flask.piscinaStat')}}" method='GET'>
             <div>
                 <span>Data inizio:</span>
                 <input class="price" type='date' size='30' name='start_date' value='{{start_date_def1}}'>

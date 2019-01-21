@@ -56,7 +56,7 @@ class PiscinaAllenamento(Base):
 #%% SITO
 
 # Blueprint per andare online 
-piscina_flask = Blueprint('account_api', __name__, template_folder='templates_piscina')
+piscina_flask = Blueprint('piscina_flask', __name__, template_folder='templates_piscina')
 
 @piscina_flask.route('/')
 def piscinaMain():
@@ -168,7 +168,7 @@ def piscinaInsert(piscina_id):
         sessione_db.commit()
         sessione_db.close()
         flash("Inserito nuovo allenamento!")
-        return redirect(url_for('account_api.piscinaMain')) # return alla pagina iniziale
+        return redirect(url_for('piscina_flask.piscinaMain')) # return alla pagina iniziale
     else:
         # PAGINA DI INSERIMENTO
         return render_template('piscina_insert.html', piscina1=piscina1, datanow=datetime.datetime.now())
@@ -192,7 +192,7 @@ def piscinaDelete(allen_id):
         sessione_db.commit()
         sessione_db.close()
         flash("Eliminato allenamento!")
-        return redirect(url_for('account_api.piscinaMain'))
+        return redirect(url_for('piscina_flask.piscinaMain'))
     else:
         # PAGINA DI CANCELLAMENTO
         return render_template('piscina_delete.html', allen1=allen1)
@@ -216,7 +216,7 @@ def piscinaNomeInsert():
         sessione_db.commit()
         sessione_db.close()
         flash("Inserito nuova piscina!")
-        return redirect(url_for('account_api.piscinaMain')) # return alla pagina iniziale
+        return redirect(url_for('piscina_flask.piscinaMain')) # return alla pagina iniziale
     else:
         # PAGINA DI INSERIMENTO
         return render_template('piscina_nome_insert.html') 
@@ -237,5 +237,5 @@ def piscinaNomeDelete(id_nome_piscina):
         sessione_db.commit()
         sessione_db.close()
         flash("Cancellata piscina!")
-        return redirect(url_for('account_api.piscinaMain')) # return alla pagina iniziale
+        return redirect(url_for('piscina_flask.piscinaMain')) # return alla pagina iniziale
 

@@ -11,7 +11,7 @@
     <ul>
         {% for i in allen %}
             <li>{{i.data}} {{i.nome_piscina.nome}} - {{i.n_vasche}} 
-            <a href='{{url_for('account_api.piscinaDelete', allen_id=i.id)}}'>Cancella</a>
+            <a href='{{url_for('piscina_flask.piscinaDelete', allen_id=i.id)}}'>Cancella</a>
             </li>
         {% endfor %}
     </ul>

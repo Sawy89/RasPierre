@@ -9,7 +9,7 @@
     <p>Sei sicuro di voler cancellare l'allenamento: <strong>{{allen1.data}} a {{allen1.nome_piscina.nome}} - {{allen1.n_vasche}} vasche?</strong></p>
     
     <!-- Form per cancellare l'allenamento pre-selezionato -->
-    <form action="{{url_for('account_api.piscinaDelete',allen_id=allen1.id)}}" method='post'>
+    <form action="{{url_for('piscina_flask.piscinaDelete',allen_id=allen1.id)}}" method='post'>
         <input class="button1" type='submit', value ='Cancella!'>
     </form>
 
