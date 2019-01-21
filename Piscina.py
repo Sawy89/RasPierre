@@ -15,7 +15,8 @@ import pandas as pd
 import datetime
 from dateutil.relativedelta import relativedelta
 from highcharts import Highchart
-from flask import Blueprint, render_template, url_for, request, redirect, flash , get_flashed_messages, session
+from flask import Blueprint, render_template, url_for, request, redirect, flash , get_flashed_messages
+from Login import login_flask, loginRequired
 
 # creo un'istanza per poi passarla come eridità
 Base = declarative_base()
@@ -59,6 +60,7 @@ class PiscinaAllenamento(Base):
 piscina_flask = Blueprint('piscina_flask', __name__, template_folder='templates_piscina')
 
 @piscina_flask.route('/')
+@loginRequired
 def piscinaMain():
     '''
     pagina principale della piscina
@@ -79,6 +81,7 @@ def piscinaMain():
 
 
 @piscina_flask.route('/allenamenti/print')
+@loginRequired
 def piscinaPrint():
     '''
     Pagina con l'elenco degli allenamenti nel periodo selezionato
@@ -101,6 +104,7 @@ def piscinaPrint():
 
 
 @piscina_flask.route('/allenamenti/stat')
+@loginRequired
 def piscinaStat():
     '''
     Pagina con le statistiche degli allenamenti nel periodo selezionato
@@ -148,6 +152,7 @@ def piscinaStat():
 
 
 @piscina_flask.route('/allenamenti/insert/<int:piscina_id>', methods=['GET', 'POST'])
+@loginRequired
 def piscinaInsert(piscina_id):
     '''
     Form per inserire un nuovo allenamento nella piscina selezionata
@@ -175,8 +180,7 @@ def piscinaInsert(piscina_id):
 
 
 @piscina_flask.route('/allenamenti/delete/<int:allen_id>', methods=['GET', 'POST'])
-#@piscina_flask.route('/allenamenti/delete', methods=['GET', 'POST'])
-#@piscina_flask.route('/allenamenti/delete?allen_id=195<int:allen_id>', methods=['GET', 'POST'])
+@loginRequired
 def piscinaDelete(allen_id):
     '''
     Pagina per cancellare un allenamento inserito
@@ -199,6 +203,7 @@ def piscinaDelete(allen_id):
     
 
 @piscina_flask.route('/insert', methods=['GET', 'POST'])
+@loginRequired
 def piscinaNomeInsert():
     '''
     Form per inserire una nuova piscina
@@ -223,6 +228,7 @@ def piscinaNomeInsert():
 
 
 @piscina_flask.route('/delete/<int:id_nome_piscina>', methods=['POST'])
+@loginRequired
 def piscinaNomeDelete(id_nome_piscina):
     '''
     Form per cancellare una piscina

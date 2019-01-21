@@ -7,12 +7,19 @@
 
 <body>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% block body %}
-    {% if session['logged_in'] %}
-     
-        You're logged in already!
-     
-    {% else %}
+    <!-- Messaggi flash -->
+    <div class='flash'>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                {% for message in messages %}
+                    <li> <strong> {{ message }} </strong> </li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+    </div>
      
         <form action="{{url_for('login_flask.login')}}" method="POST">
             <div class="login">
@@ -35,8 +42,6 @@
                 </div>
             </div>
         </form>
-    {% endif %}
-    {% endblock %}
 
 </body>
 

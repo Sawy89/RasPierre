@@ -10,10 +10,10 @@ Contiene il Main del progetto RasPierre
 #from sqlalchemy import create_engine
 #import Piscina
 from Piscina import piscina_flask
-from Login import login_flask
+from Login import login_flask, loginRequired
 #from sqlalchemy.orm import sessionmaker
 #from Piscina import *
-from flask import Flask, flash, render_template, request, session
+from flask import Flask, render_template
 import os
 
 app = Flask(__name__)
@@ -22,11 +22,9 @@ app.register_blueprint(login_flask, url_prefix='/auth')
 
 
 @app.route('/')
+@loginRequired
 def home():
-    if not session.get('logged_in'):
-        return render_template('login.html')
-    else:
-        return render_template('index.html')
+    return render_template('index.html')
 
  
 if __name__ == "__main__":
