@@ -15,7 +15,7 @@ import pandas as pd
 import datetime
 from dateutil.relativedelta import relativedelta
 from highcharts import Highchart
-from flask import Blueprint, render_template, url_for, request, redirect, flash , get_flashed_messages
+from flask import Blueprint, render_template, url_for, request, redirect, flash , get_flashed_messages, session
 
 # creo un'istanza per poi passarla come eridità
 Base = declarative_base()
@@ -54,29 +54,32 @@ class PiscinaAllenamento(Base):
     
 
 #%% Carico le tabelle con i dati di un excel
-def restoreNomePiscina(session):
+def restoreNomePiscina():
     '''
     Ricarica l'elenco delle piscine
     '''
     # Piscina di saluzzo
+    sessione_db = DBSession()
     p1 = PiscinaLocation(nome='Saluzzo', lung_vasche=25)
-    session.add(p1)
-    session.commit()
+    sessione_db.add(p1)
+    sessione_db.commit()
     
     # Piscina di Casa
     p2 = PiscinaLocation(nome='Casa Carrù', lung_vasche=10)
-    session.add(p2)
-    session.commit()
+    sessione_db.add(p2)
+    sessione_db.commit()
     
 
 
-def restorePiscinaAllenamenti(filename, session):
+def restorePiscinaAllenamenti(filename):
     '''
     funzione che legge il file contenete i vecchi dati sugli allenamenti in piscina
     e li ricarica su DB
     '''
+    sessione_db = DBSession()
+    
     # Estraggo la lista delle piscine già caricate su DB
-    piscine = session.query(PiscinaLocation)
+    piscine = sessione_db.query(PiscinaLocation)
     lista_piscine = [i.nome for i in piscine]
     
     # Leggo il file
@@ -88,12 +91,12 @@ def restorePiscinaAllenamenti(filename, session):
         if nome_cur not in lista_piscine:
             # se non c'è, carico la piscina (con lung_vasche=25)
             p1 = PiscinaLocation(nome=nome_cur, lung_vasche=25)
-            session.add(p1)
-            session.commit()
+            sessione_db.add(p1)
+            sessione_db.commit()
             
             # riscarico la lista delle piscine
             print('!!! Caricata la piscina '+nome_cur+' (non presente) con vasca da 25m')
-            piscine = session.query(PiscinaLocation)
+            piscine = sessione_db.query(PiscinaLocation)
             lista_piscine = [i.nome for i in piscine]
         
         # estraggo l'oggetto piscina
@@ -105,8 +108,8 @@ def restorePiscinaAllenamenti(filename, session):
                                                                n_vasche=int(dati.loc[row_id, 'n_vasche']))
         
         # carico
-        session.add(a)
-        session.commit()
+        sessione_db.add(a)
+        sessione_db.commit()
 
 
 #%% SITO
@@ -120,9 +123,9 @@ def piscinaMain():
     pagina principale della piscina
     '''
     # Lista delle piscine
-    session = DBSession()
-    piscina = session.query(PiscinaLocation)
-    piscina = session.query(PiscinaLocation, func.count(PiscinaAllenamento.id).label('Nallenamenti')
+    sessione_db = DBSession()
+    piscina = sessione_db.query(PiscinaLocation)
+    piscina = sessione_db.query(PiscinaLocation, func.count(PiscinaAllenamento.id).label('Nallenamenti')
                             ).outerjoin(PiscinaAllenamento).group_by(PiscinaLocation.nome).all()
     
     # Creo delle date di default
@@ -147,11 +150,11 @@ def piscinaPrint():
         stop_date = request.args.get('stop_date', '')
 
     # Scarico i dati da DB: allenamenti compresi tra le date specificate
-    session = DBSession()
-    allen = session.query(PiscinaAllenamento).filter(and_(
+    sessione_db = DBSession()
+    allen = sessione_db.query(PiscinaAllenamento).filter(and_(
             PiscinaAllenamento.data>=datetime.datetime.strptime(start_date,'%Y-%m-%d'), 
             PiscinaAllenamento.data<datetime.datetime.strptime(stop_date,'%Y-%m-%d')))
-    session.close()
+    sessione_db.close()
     
     return render_template('piscina_print.html', allen=allen, start_date=start_date, stop_date=stop_date)
 
@@ -209,8 +212,8 @@ def piscinaInsert(piscina_id):
     Form per inserire un nuovo allenamento nella piscina selezionata
     '''
     # Scarico la piscina selezionata
-    session = DBSession()
-    piscina1 = session.query(PiscinaLocation).filter_by(id=piscina_id).one()
+    sessione_db = DBSession()
+    piscina1 = sessione_db.query(PiscinaLocation).filter_by(id=piscina_id).one()
     
     if request.method == 'POST':
         # INSERIMENTO ALLENAMENTO
@@ -220,9 +223,9 @@ def piscinaInsert(piscina_id):
         # creo oggetto allenamento
         a = PiscinaAllenamento(data=allen_date, id_nome_piscina=piscina_id, n_vasche=n_vasche)
         # carico
-        session.add(a)
-        session.commit()
-        session.close()
+        sessione_db.add(a)
+        sessione_db.commit()
+        sessione_db.close()
         flash("Inserito nuovo allenamento!")
         return redirect(url_for('account_api.piscinaMain')) # return alla pagina iniziale
     else:
@@ -238,15 +241,15 @@ def piscinaDelete(allen_id):
     Pagina per cancellare un allenamento inserito
     '''
     # Scarico l'allenamento selezionato
-    session = DBSession()
-    allen1 = session.query(PiscinaAllenamento).filter_by(id=allen_id).one()
+    sessione_db = DBSession()
+    allen1 = sessione_db.query(PiscinaAllenamento).filter_by(id=allen_id).one()
     
     if request.method == 'POST':
         # CANCELLAMENTO ALLENAMENTO
         # cancello l'elemento
-        session.delete(allen1)
-        session.commit()
-        session.close()
+        sessione_db.delete(allen1)
+        sessione_db.commit()
+        sessione_db.close()
         flash("Eliminato allenamento!")
         return redirect(url_for('account_api.piscinaMain'))
     else:
@@ -261,16 +264,16 @@ def piscinaNomeInsert():
     '''
     if request.method == 'POST':
         # INSERIMENTO PISCINA
-        session = DBSession()
+        sessione_db = DBSession()
         # Leggo gli input
         nome = request.form['nome']
         lung_vasche = int(request.form['lung_vasche'])
         # creo oggetto allenamento
         p1 = PiscinaLocation(nome=nome, lung_vasche=lung_vasche)
         # carico
-        session.add(p1)
-        session.commit()
-        session.close()
+        sessione_db.add(p1)
+        sessione_db.commit()
+        sessione_db.close()
         flash("Inserito nuova piscina!")
         return redirect(url_for('account_api.piscinaMain')) # return alla pagina iniziale
     else:
@@ -285,13 +288,13 @@ def piscinaNomeDelete(id_nome_piscina):
     '''
     if request.method == 'POST':
         # CANCELLO PISCINA
-        session = DBSession()
+        sessione_db = DBSession()
         # cercao oggetto piscina da eliminare
-        p1 = session.query(PiscinaLocation).filter_by(id=id_nome_piscina).one()
+        p1 = sessione_db.query(PiscinaLocation).filter_by(id=id_nome_piscina).one()
         # carico
-        session.delete(p1)
-        session.commit()
-        session.close()
+        sessione_db.delete(p1)
+        sessione_db.commit()
+        sessione_db.close()
         flash("Cancellata piscina!")
         return redirect(url_for('account_api.piscinaMain')) # return alla pagina iniziale
 
