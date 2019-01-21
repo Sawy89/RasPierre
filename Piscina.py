@@ -7,7 +7,7 @@ Provo a creare il DB piscina
 @author: ddeen
 """
 
-from sqlalchemy import Column, ForeignKey, Integer, String, Date, and_, func
+from sqlalchemy import Column, ForeignKey, Integer, String, Date, and_, func, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy import create_engine
@@ -16,7 +16,7 @@ import datetime
 from dateutil.relativedelta import relativedelta
 from highcharts import Highchart
 from flask import Blueprint, render_template, url_for, request, redirect, flash , get_flashed_messages
-from Login import login_flask, loginRequired
+from Login import loginRequired
 
 # creo un'istanza per poi passarla come eridità
 Base = declarative_base()
@@ -39,6 +39,7 @@ class PiscinaLocation(Base):
     id = Column(Integer, primary_key=True) 
     nome = Column(String(255), unique=True)
     lung_vasche = Column(Integer, nullable=False) # lunghezza in metri delle vasche
+    insertdate = Column(DateTime)
 
 
 class PiscinaAllenamento(Base):
@@ -52,6 +53,7 @@ class PiscinaAllenamento(Base):
     id_nome_piscina = Column(Integer, ForeignKey('nome_piscina.id')) # in quale piscina
     n_vasche = Column(Integer)
     nome_piscina = relationship(PiscinaLocation)
+    insertdate = Column(DateTime)
     
 
 #%% SITO
@@ -167,7 +169,7 @@ def piscinaInsert(piscina_id):
         allen_date = datetime.datetime.strptime(request.form['allen_date'],'%Y-%m-%d').date()
         n_vasche = int(request.form['n_vasche'])
         # creo oggetto allenamento
-        a = PiscinaAllenamento(data=allen_date, id_nome_piscina=piscina_id, n_vasche=n_vasche)
+        a = PiscinaAllenamento(data=allen_date, id_nome_piscina=piscina_id, n_vasche=n_vasche, insertdate=datetime.datetime.now())
         # carico
         sessione_db.add(a)
         sessione_db.commit()
@@ -215,7 +217,7 @@ def piscinaNomeInsert():
         nome = request.form['nome']
         lung_vasche = int(request.form['lung_vasche'])
         # creo oggetto allenamento
-        p1 = PiscinaLocation(nome=nome, lung_vasche=lung_vasche)
+        p1 = PiscinaLocation(nome=nome, lung_vasche=lung_vasche, insertdate=datetime.datetime.now())
         # carico
         sessione_db.add(p1)
         sessione_db.commit()
