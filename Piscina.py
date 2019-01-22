@@ -69,7 +69,6 @@ def piscinaMain():
     '''
     # Lista delle piscine
     sessione_db = DBSession()
-    piscina = sessione_db.query(PiscinaLocation)
     piscina = sessione_db.query(PiscinaLocation, func.count(PiscinaAllenamento.id).label('Nallenamenti')
                             ).outerjoin(PiscinaAllenamento).group_by(PiscinaLocation.nome).all()
     
