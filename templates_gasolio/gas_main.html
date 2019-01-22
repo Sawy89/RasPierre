@@ -1,0 +1,81 @@
+<html>
+<head>
+	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <h1>Rifornimenti di carburante</h1>
+    <div class="pane">
+        <!-- Messaggi flash -->
+        <div class='flash'>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <ul>
+                    {% for message in messages %}
+                        <li> <strong> {{ message }} </strong> </li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+
+        </div>
+        
+        <!-- Lista auto -->
+        <div class="pane_sotto">
+        <h2 class="header">Vetture disponibili:</h2>
+        <ul>
+            {% for i in dati %}
+            <li>{{i.Vettura.auto}} ({{a.Vettura.tipo_carburante}})
+                <a href='{{url_for('gas_flask.rifInsert', auto_nome=i.Vettura.auto)}}'>Nuovo rifornimento</a>
+                <!-- Posso cancellare solo se non ho ancora inserito rifornimenti -->
+                {% if i.Nrif==0 %}
+                    <form action="{{url_for('gas_flask.autoDelete', id_auto=i.Vettura.id)}}" method='post'>
+                        <input type='submit', value ='Cancella!'>
+                    </form>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        <div>
+            <a class="button1" href='{{url_for('gas_flask.autoInsert')}}'>Inserisci nuova vettura</a>
+        </div>
+        <br><br>
+        </div>
+        
+        <!-- Form per rifornimenti: print -->
+        <div class="pane_sotto">
+        <h2 class="header">Rifornimenti: vai alla lista!</h2>
+        <form action="{{url_for('gas_flask.rifPrint')}}" method='GET'>
+            <div>
+                <span>Data inizio:</span>
+                <input class="price" type='date' size='30' name='start_date' value='{{start_date_def2}}'>
+            </div><br>
+            <div>
+                <span>Data fine:</span>
+                <input class="price" type='date' size='30' name='stop_date' value='{{stop_date_def}}'>
+            </div><br>
+            <input class="button1" type='submit' value='Vai!'>
+        </form>
+        <br><br>
+        </div>
+        
+        <!-- Form per rifornimenti: grafico -->
+        <div class="pane_sotto">
+        <h2 class="header">Rifornimenti: vai alle statistiche!</h2>
+        <form action="{{url_for('gas_flask.stat')}}" method='GET'>
+            <div>
+                <span>Data inizio:</span>
+                <input class="price" type='date' size='30' name='start_date' value='{{start_date_def1}}'>
+            </div><br>
+            <div>
+                <span>Data fine:</span>
+                <input class="price" type='date' size='30' name='stop_date' value='{{stop_date_def}}'>
+            </div><br>
+            <input class="button1" type='submit' value='Vai!'>
+        </form>
+        </div>
+    </div>
+</body>
+
+</html>

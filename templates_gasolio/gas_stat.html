@@ -1,0 +1,21 @@
+<html>
+<head>
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+    {{fig1_head | safe}}
+</head>
+
+<body>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <h1>Piscina: statistiche allenamenti tra {{start_date}} e {{stop_date}}</h1>
+    
+    <!-- Figura 1 -->
+    {{fig1_body | safe}}
+    
+    <!-- Tabella 1 -->
+    <div class="col_white">
+        {{df1 | safe}}
+    </div>
+
+</body>
+
+</html>

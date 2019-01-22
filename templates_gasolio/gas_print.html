@@ -1,0 +1,21 @@
+<html>
+<head>
+	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <h1>Rifornimenti: lista tra {{start_date}} e {{stop_date}}</h1>
+    
+    <!-- Lista dei rifornimenti con link per cancellarli -->
+    <ul>
+        {% for i in df_all.index  %}
+            <li>{{i.data}} {{i.nome_piscina.nome}} - {{i.n_vasche}} 
+            <a href='{{url_for('piscina_flask.piscinaDelete', allen_id=i.id)}}'>Cancella</a>
+            </li>
+        {% endfor %}
+    </ul>
+
+</body>
+
+</html>

@@ -1,0 +1,25 @@
+<html>
+<head>
+	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+    <h1>Inserisci una nuova piscina!</h1>
+    
+    <!-- Form per inserire un nuovo allenamento -->
+    <div class="pane">
+    <form action="{{url_for('piscina_flask.piscinaNomeInsert')}}" method='post'>
+            <span>Nome piscina:</span>
+            <input class="price" type="text" name="nome" size="30"><br><br>
+
+            <span>Lunghezza vasche:</span>
+            <input class="price" type="number" name="lung_vasche" min="1" max="100"><br><br>
+
+            <input class="button1" type='submit', value ='Inserisci!'>
+    </form>
+    </div>
+
+</body>
+
+</html>
