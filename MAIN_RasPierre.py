@@ -7,17 +7,16 @@ Contiene il Main del progetto RasPierre
 @author: ddeen
 """
 
-#from sqlalchemy import create_engine
-#import Piscina
 from Piscina import piscina_flask
+from Gasolio import gas_flask
 from Login import login_flask, loginRequired
-#from sqlalchemy.orm import sessionmaker
-#from Piscina import *
+
 from flask import Flask, render_template
 import os
 
 app = Flask(__name__)
 app.register_blueprint(piscina_flask, url_prefix='/piscina')
+app.register_blueprint(gas_flask, url_prefix='/gas')
 app.register_blueprint(login_flask, url_prefix='/auth')
 
 

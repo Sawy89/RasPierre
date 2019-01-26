@@ -26,8 +26,8 @@
         <h2 class="header">Vetture disponibili:</h2>
         <ul>
             {% for i in dati %}
-            <li>{{i.Vettura.auto}} ({{a.Vettura.tipo_carburante}})
-                <a href='{{url_for('gas_flask.rifInsert', auto_nome=i.Vettura.auto)}}'>Nuovo rifornimento</a>
+            <li>{{i.Vettura.auto}} ({{i.Vettura.tipo_carburante}})
+                <a href='{{url_for('gas_flask.rifInsert', auto_id=i.Vettura.id)}}'>Nuovo rifornimento</a>
                 <!-- Posso cancellare solo se non ho ancora inserito rifornimenti -->
                 {% if i.Nrif==0 %}
                     <form action="{{url_for('gas_flask.autoDelete', id_auto=i.Vettura.id)}}" method='post'>
@@ -60,7 +60,7 @@
         <br><br>
         </div>
         
-        <!-- Form per rifornimenti: grafico -->
+        <!-- Form per rifornimenti: grafico 
         <div class="pane_sotto">
         <h2 class="header">Rifornimenti: vai alle statistiche!</h2>
         <form action="{{url_for('gas_flask.stat')}}" method='GET'>
@@ -74,7 +74,7 @@
             </div><br>
             <input class="button1" type='submit' value='Vai!'>
         </form>
-        </div>
+        </div> -->
     </div>
 </body>
 

@@ -10,8 +10,8 @@
     <!-- Lista dei rifornimenti con link per cancellarli -->
     <ul>
         {% for i in df_all.index  %}
-            <li>{{i.data}} {{i.nome_piscina.nome}} - {{i.n_vasche}} 
-            <a href='{{url_for('piscina_flask.piscinaDelete', allen_id=i.id)}}'>Cancella</a>
+            <li>{{i.data}} {{i.auto}} ({{i.distributore}}) - {{i.litri}} litri, {{i.prezzo}}€, {{i.chilometri}}km - {{i.euro_al_litro}}€/l, {{i.consumo_al_litro}}km/l
+            <a href='{{url_for('gas_flask.rifDelete', rif_id=i.id)}}'>Cancella</a>
             </li>
         {% endfor %}
     </ul>

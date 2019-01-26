@@ -74,6 +74,9 @@ def calcoloConsumo():
         # Scarico tutti i dati
         dati = pd.read_sql("SELECT * FROM rifornimenti WHERE auto = '"+auto_val+"' ", engine)
         
+        # Converto data
+        dati['data'] = pd.to_datetime(dati['data'])
+        
         # Euro al litro
         dati['euro_al_litro'] = round(dati['prezzo'] / dati['litri'],2)
         
@@ -115,10 +118,6 @@ def gasMain():
     dati = sessione_db.query(Vettura, func.count(Rifornimenti.id).label('Nrif')
                             ).outerjoin(Rifornimenti).group_by(Vettura.auto).all()
     
-    # Calcolo consumo e lo salvo
-    if 'df_all' not in session:
-        session['df_all'] = calcoloConsumo()
-    
     # Creo delle date di default
     start_date_def1 = (datetime.datetime.now()-relativedelta(years=1)).replace(day=1).strftime('%Y-%m-%d') # l'ultimo anno
     start_date_def2 = (datetime.datetime.now()-datetime.timedelta(days=15)).replace(day=1).strftime('%Y-%m-%d') # l'ultimo mese
@@ -140,9 +139,9 @@ def rifPrint():
         stop_date = request.args.get('stop_date', '')
     
     # Estraggo i dati per il periodo di interesse
-    df_all = session['df_all']
-    df_tmp = df_all.loc[].copy()
-    
+    df_all = calcoloConsumo()
+    ind = (df_all['data'] >= datetime.datetime.strptime(start_date,'%Y-%m-%d')) & (df_all['data'] <= datetime.datetime.strptime(stop_date,'%Y-%m-%d'))
+    df_tmp = df_all.loc[ind,:].copy()
     
     return render_template('gas_print.html', df_all=df_tmp, start_date=start_date, stop_date=stop_date)
 
@@ -195,43 +194,48 @@ def stat():
                                fig1_head=chart.htmlheader, fig1_body=chart.content)
 
 
-@gas_flask.route('/rif/insert/<int:piscina_id>', methods=['GET', 'POST'])
+@gas_flask.route('/rif/insert/<int:auto_id>', methods=['GET', 'POST'])
 @loginRequired
-def piscinaInsert(piscina_id):
+def rifInsert(auto_id):
     '''
-    Form per inserire un nuovo allenamento nella piscina selezionata
+    Form per inserire un nuovo rifornimento di carburante per la macchina selezionata
     '''
     # Scarico la piscina selezionata
     sessione_db = DBSession()
-    piscina1 = sessione_db.query(PiscinaLocation).filter_by(id=piscina_id).one()
+    auto1 = sessione_db.query(Rifornimenti).filter_by(id=auto_id).one()
     
     if request.method == 'POST':
         # INSERIMENTO ALLENAMENTO
         # Leggo gli input
         allen_date = datetime.datetime.strptime(request.form['allen_date'],'%Y-%m-%d').date()
-        n_vasche = int(request.form['n_vasche'])
+        distributore = request.form['distributore']
+        litri = round(float(request.form['litri'].replace(',','.')),2)
+        prezzo = round(float(request.form['prezzo'].replace(',','.')),2)
+        chilometri = int(request.form['chilometri'])
         # creo oggetto allenamento
-        a = PiscinaAllenamento(data=allen_date, id_nome_piscina=piscina_id, n_vasche=n_vasche, insertdate=datetime.datetime.now())
+        a = Rifornimenti(data=allen_date, auto=auto1.auto, distributore=distributore, 
+                         litri=litri, prezzo=prezzo, chilometri=chilometri,
+                         insertdate=datetime.datetime.now())
         # carico
         sessione_db.add(a)
         sessione_db.commit()
         sessione_db.close()
-        flash("Inserito nuovo allenamento!")
-        return redirect(url_for('piscina_flask.piscinaMain')) # return alla pagina iniziale
+        flash("Inserito nuovo rifornimento!")
+        return redirect(url_for('gas_flask.gasMain')) # return alla pagina iniziale
     else:
         # PAGINA DI INSERIMENTO
-        return render_template('piscina_insert.html', piscina1=piscina1, datanow=datetime.datetime.now())
+        return render_template('gas_insert.html', auto1=auto1, datanow=datetime.datetime.now())
 
 
-@piscina_flask.route('/allenamenti/delete/<int:allen_id>', methods=['GET', 'POST'])
+@gas_flask.route('/rif/delete/<int:rif_id>', methods=['GET', 'POST'])
 @loginRequired
-def piscinaDelete(allen_id):
+def rifDelete(rif_id):
     '''
-    Pagina per cancellare un allenamento inserito
+    Pagina per cancellare un rifornimento inserito
     '''
     # Scarico l'allenamento selezionato
     sessione_db = DBSession()
-    allen1 = sessione_db.query(PiscinaAllenamento).filter_by(id=allen_id).one()
+    allen1 = sessione_db.query(Rifornimenti).filter_by(id=rif_id).one()
     
     if request.method == 'POST':
         # CANCELLAMENTO ALLENAMENTO
@@ -239,52 +243,55 @@ def piscinaDelete(allen_id):
         sessione_db.delete(allen1)
         sessione_db.commit()
         sessione_db.close()
+        # Ricalcolo il consumo
+        session['df_all'] = calcoloConsumo()
+        # print message flash
         flash("Eliminato allenamento!")
-        return redirect(url_for('piscina_flask.piscinaMain'))
+        return redirect(url_for('gas_flask.gasMain'))
     else:
         # PAGINA DI CANCELLAMENTO
-        return render_template('piscina_delete.html', allen1=allen1)
+        return render_template('gas_delete.html', allen1=allen1)
     
 
-@piscina_flask.route('/insert', methods=['GET', 'POST'])
+@gas_flask.route('/insert', methods=['GET', 'POST'])
 @loginRequired
-def piscinaNomeInsert():
+def autoInsert():
     '''
-    Form per inserire una nuova piscina
+    Form per inserire una nuova vettura
     '''
     if request.method == 'POST':
         # INSERIMENTO PISCINA
         sessione_db = DBSession()
         # Leggo gli input
         nome = request.form['nome']
-        lung_vasche = int(request.form['lung_vasche'])
+        tipo_carburante = request.form['tipo_carburante']
         # creo oggetto allenamento
-        p1 = PiscinaLocation(nome=nome, lung_vasche=lung_vasche, insertdate=datetime.datetime.now())
+        p1 = Vettura(auto=nome, tipo_carburante=tipo_carburante, insertdate=datetime.datetime.now())
         # carico
         sessione_db.add(p1)
         sessione_db.commit()
         sessione_db.close()
-        flash("Inserito nuova piscina!")
-        return redirect(url_for('piscina_flask.piscinaMain')) # return alla pagina iniziale
+        flash("Inserito nuova vettura (complimenti per l'acquisto)!")
+        return redirect(url_for('gas_flask.gasMain')) # return alla pagina iniziale
     else:
         # PAGINA DI INSERIMENTO
-        return render_template('piscina_nome_insert.html') 
+        return render_template('auto_insert.html') 
 
 
-@piscina_flask.route('/delete/<int:id_nome_piscina>', methods=['POST'])
+@gas_flask.route('/delete/<int:id_auto>', methods=['POST'])
 @loginRequired
-def piscinaNomeDelete(id_nome_piscina):
+def autoDelete(id_auto):
     '''
-    Form per cancellare una piscina
+    Form per cancellare una vettura
     '''
     if request.method == 'POST':
-        # CANCELLO PISCINA
+        # CANCELLO Auto
         sessione_db = DBSession()
         # cercao oggetto piscina da eliminare
-        p1 = sessione_db.query(PiscinaLocation).filter_by(id=id_nome_piscina).one()
+        p1 = sessione_db.query(Vettura).filter_by(id=id_auto).one()
         # carico
         sessione_db.delete(p1)
         sessione_db.commit()
         sessione_db.close()
-        flash("Cancellata piscina!")
-        return redirect(url_for('piscina_flask.piscinaMain')) # return alla pagina iniziale
+        flash("Cancellata vettura...")
+        return redirect(url_for('gas_flask.gasMain')) # return alla pagina iniziale

@@ -5,16 +5,16 @@
 
 <body>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">    
-    <h1>Inserisci una nuova piscina!</h1>
+    <h1>Inserisci una nuova vettura!</h1>
     
-    <!-- Form per inserire un nuovo allenamento -->
+    <!-- Form per inserire una nuova vettura -->
     <div class="pane">
-    <form action="{{url_for('piscina_flask.piscinaNomeInsert')}}" method='post'>
-            <span>Nome piscina:</span>
+    <form action="{{url_for('gas_flask.autoInsert')}}" method='post'>
+            <span>Nome vettura:</span>
             <input class="price" type="text" name="nome" size="30"><br><br>
 
-            <span>Lunghezza vasche:</span>
-            <input class="price" type="number" name="lung_vasche" min="1" max="100"><br><br>
+            <span>Tipo di carburante:</span>
+            <input class="price" type="text" name="tipo_carburante"><br><br>
 
             <input class="button1" type='submit', value ='Inserisci!'>
     </form>

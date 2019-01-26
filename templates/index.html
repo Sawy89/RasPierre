@@ -22,13 +22,21 @@
         {% endwith %}
 
     </div>
-        
+    
     <div class="pane">
+        <!-- Piscina -->
         <div class="pane_sotto">
             <p>Lo sport fa bene: piscina!</p>
             <a class="button1" href='{{url_for('piscina_flask.piscinaMain')}}'>Vai</a>
         </div><br>
         
+        <!-- Gas -->
+        <div class="pane_sotto">
+            <p>L'ambiente non è contento: carburante...</p>
+            <a class="button1" href='{{url_for('gas_flask.gasMain')}}'>Vai</a>
+        </div><br>
+        
+        <!-- Logout -->
         <div class="pane_sotto">
             <p>Ci dobbiamo salutare...</p>
             <a class="button1" href='{{url_for('login_flask.logout')}}'>Logout</a>"
