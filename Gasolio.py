@@ -138,12 +138,14 @@ def rifPrint():
         start_date = request.args.get('start_date', '')
         stop_date = request.args.get('stop_date', '')
     
-    # Estraggo i dati per il periodo di interesse
-    df_all = calcoloConsumo()
-    ind = (df_all['data'] >= datetime.datetime.strptime(start_date,'%Y-%m-%d')) & (df_all['data'] <= datetime.datetime.strptime(stop_date,'%Y-%m-%d'))
-    df_tmp = df_all.loc[ind,:].copy()
+    # Scarico i dati da DB per il periodo di interesse
+    sessione_db = DBSession()
+    dati = sessione_db.query(Rifornimenti).filter(and_(
+            Rifornimenti.data>=datetime.datetime.strptime(start_date,'%Y-%m-%d'), 
+            Rifornimenti.data<datetime.datetime.strptime(stop_date,'%Y-%m-%d')))
+    sessione_db.close()
     
-    return render_template('gas_print.html', df_all=df_tmp, start_date=start_date, stop_date=stop_date)
+    return render_template('gas_print.html', dati=dati, start_date=start_date, stop_date=stop_date)
 
 
 @gas_flask.route('/rif/stat')
@@ -243,8 +245,6 @@ def rifDelete(rif_id):
         sessione_db.delete(allen1)
         sessione_db.commit()
         sessione_db.close()
-        # Ricalcolo il consumo
-        session['df_all'] = calcoloConsumo()
         # print message flash
         flash("Eliminato allenamento!")
         return redirect(url_for('gas_flask.gasMain'))

@@ -10,7 +10,7 @@
     <p><strong>{{allen1.data}} con {{allen1.auto}} ({{allen1.distributore}}) - {{allen1.litri}} litri, {{allen1.prezzo}}€, {{allen1.chilometri}}km </strong>(caricato il {{allen1.insertdate}})?</p>
     
     <!-- Form per cancellare l'allenamento pre-selezionato -->
-    <form action="{{url_for('gas_flask.rifDelete',allen_id=allen1.id)}}" method='post'>
+    <form action="{{url_for('gas_flask.rifDelete',rif_id=allen1.id)}}" method='post'>
         <input class="button1" type='submit', value ='Cancella!'>
     </form>
 
