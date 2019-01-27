@@ -78,21 +78,21 @@ def calcoloConsumo():
         dati['data'] = pd.to_datetime(dati['data'])
         
         # Euro al litro
-        dati['euro_al_litro'] = round(dati['prezzo'] / dati['litri'],2)
+        dati['euro al litro'] = round(dati['prezzo'] / dati['litri'],2)
         
         # Consumo singolo
         dati['chilometri_last'] = dati['chilometri'].shift(1).fillna(0)
         dati['chilometri_delta'] = dati['chilometri']-dati['chilometri_last']
-        dati['consumo_al_litro'] = round(dati['chilometri_delta'] / dati['litri'], 2) # chilometri al litro
-        dati['consumo_100km'] = round(100 * dati['litri'] / dati['chilometri_delta'], 2) # litri / 100km
+        dati['chilometri con un litro'] = round(dati['chilometri_delta'] / dati['litri'], 2) # chilometri al litro
+        dati['litri per 100km'] = round(100 * dati['litri'] / dati['chilometri_delta'], 2) # litri / 100km
         
         # Consumo cumulato
-        dati['consumo_al_litro_cum'] = round(dati['chilometri_delta'].cumsum() / dati['litri'].cumsum(), 2)
-        dati['consumo_100km_cum'] = round(100 * dati['litri'].cumsum() / dati['chilometri_delta'].cumsum(), 2)
+        dati['chilometri con un litro CUM'] = round(dati['chilometri_delta'].cumsum() / dati['litri'].cumsum(), 2)
+        dati['litri per 100km CUM'] = round(100 * dati['litri'].cumsum() / dati['chilometri_delta'].cumsum(), 2)
         
         # Consumo legato al distributore (il distributore influisce sul consumo successivo)
-        dati['consumo_al_litro_distributore'] = dati['consumo_al_litro'].shift(-1)
-        dati['consumo_100km_distributore'] = dati['consumo_100km'].shift(-1)
+        dati['chilometri con un litro distributore'] = dati['chilometri con un litro'].shift(-1)
+        dati['litri per 100km distributore'] = dati['litri per 100km'].shift(-1)
         
         # Concateno tutte le vetture
         if dati_all.empty == True:
@@ -159,41 +159,27 @@ def stat():
         start_date = request.args.get('start_date', '')
         stop_date = request.args.get('stop_date', '')
     
-    # Scarico i dati da DB: allenamenti compresi tra le date specificate
-    query_text = ("""SELECT strftime('%Y',data) AS anno
-                 , strftime('%m',data) AS mese
-                 , count(0) AS Nvolte
-                 , sum(n_vasche * 25 / lung_vasche) AS somma_vasche
-                 , round(avg(n_vasche * 25 / lung_vasche), 1) AS media_vasche
-                 , sum(n_vasche * lung_vasche) AS somma_metri
-                 , round(avg(n_vasche * lung_vasche), 0) AS media_metri
-            FROM piscina_allenamenti
-            JOIN nome_piscina
-                ON piscina_allenamenti.id_nome_piscina = nome_piscina.id
-            WHERE data >= date('"""+start_date+"""')
-                AND data < date('"""+stop_date+"""')
-            GROUP BY
-              anno
-            , mese""")
-    dati = pd.read_sql_query(query_text, engine)
-    dati['media_metri'] = dati['media_metri'].astype('int')
+    # calcolo consumo
+    dati = calcoloConsumo()
+    ind = (dati['data'] >= datetime.datetime.strptime(start_date,'%Y-%m-%d')) & (dati['data'] <= datetime.datetime.strptime(stop_date,'%Y-%m-%d'))
+    dati = dati.loc[ind,:].drop(['id','insertdate','chilometri_last','chilometri_delta'],axis=1).copy()
     
-    # Grafico
-    chart = Highchart(width = 600, height = 500)
-    dff=[]
-    for i in range(len(dati)):
-        dff.append(str(dati.anno[i])+'/'+str(dati.mese[i]))
-    chart.set_options('xAxis', {'categories': dff, 'gridLineWidth': 1})
-    chart.set_options('tooltip', {'formatter': 'default_tooltip'})
-    chart.set_options('title', {'text': 'Statistiche mensili allenamenti'})
-    chart.add_data_set(dati.Nvolte.values.tolist(), series_type='bar', name='Numero allenamenti')
-    chart.add_data_set(dati.media_metri.values.tolist(), series_type='line', name='Media metri')
-    chart.add_data_set(dati.somma_metri.values.tolist(), series_type='bar', name='Somma metri')
-    chart.htmlcontent;
+#    # Grafico
+#    chart = Highchart(width = 600, height = 500)
+#    dff=[]
+#    for i in range(len(dati)):
+#        dff.append(str(dati.anno[i])+'/'+str(dati.mese[i]))
+#    chart.set_options('xAxis', {'categories': dff, 'gridLineWidth': 1})
+#    chart.set_options('tooltip', {'formatter': 'default_tooltip'})
+#    chart.set_options('title', {'text': 'Statistiche mensili allenamenti'})
+#    chart.add_data_set(dati.Nvolte.values.tolist(), series_type='bar', name='Numero allenamenti')
+#    chart.add_data_set(dati.media_metri.values.tolist(), series_type='line', name='Media metri')
+#    chart.add_data_set(dati.somma_metri.values.tolist(), series_type='bar', name='Somma metri')
+#    chart.htmlcontent;
     
-    return render_template('piscina_stat.html', start_date=start_date, stop_date=stop_date, 
-                           df1=dati.to_html(classes='table',index=False,escape=True).replace('<th>','<th style = "background-color: #000099"	>'), 
-                               fig1_head=chart.htmlheader, fig1_body=chart.content)
+    return render_template('gas_stat.html', start_date=start_date, stop_date=stop_date, 
+                           df1=dati.to_html(classes='table',index=False,escape=True).replace('<th>','<th style = "background-color: #000099"	>')) 
+#                               fig1_head=chart.htmlheader, fig1_body=chart.content)
 
 
 @gas_flask.route('/rif/insert/<int:auto_id>', methods=['GET', 'POST'])
