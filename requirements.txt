@@ -1,1 +1,7 @@
-set heroku/python
+Flaks
+python-highcharts
+pandas
+sqlalchemy
+datetime
+dateutils
+functools
