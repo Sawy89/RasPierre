@@ -1,4 +1,4 @@
-flaks
+flask
 python-highcharts
 pandas
 sqlalchemy
