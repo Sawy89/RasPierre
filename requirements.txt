@@ -1,6 +1,6 @@
-Flaks
+flaks==1.0.2
 python-highcharts
-pandas
+pandas==0.21.1
 sqlalchemy
 datetime
 dateutils
