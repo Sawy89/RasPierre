@@ -19,6 +19,9 @@ app.register_blueprint(piscina_flask, url_prefix='/piscina')
 app.register_blueprint(gas_flask, url_prefix='/gas')
 app.register_blueprint(login_flask, url_prefix='/auth')
 
+# secret key
+app.secret_key = os.urandom(12)
+
 
 @app.route('/')
 @loginRequired
@@ -27,6 +30,5 @@ def home():
 
  
 if __name__ == "__main__":
-    app.secret_key = os.urandom(12)
 #    app.debug = 5000
     app.run(debug=False,host='0.0.0.0', port=5000)
