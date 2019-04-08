@@ -142,6 +142,7 @@ def piscinaStat():
     chart.set_options('xAxis', {'categories': dff, 'gridLineWidth': 1})
     chart.set_options('tooltip', {'formatter': 'default_tooltip'})
     chart.set_options('title', {'text': 'Statistiche mensili allenamenti'})
+#    chart.set_options('chart', {'backgroundColor':'transparent'})
     chart.add_data_set(dati.Nvolte.values.tolist(), series_type='bar', name='Numero allenamenti')
     chart.add_data_set(dati.media_metri.values.tolist(), series_type='line', name='Media metri')
     chart.add_data_set(dati.somma_metri.values.tolist(), series_type='bar', name='Somma metri')

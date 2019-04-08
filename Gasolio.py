@@ -161,25 +161,27 @@ def stat():
     
     # calcolo consumo
     dati = calcoloConsumo()
-    ind = (dati['data'] >= datetime.datetime.strptime(start_date,'%Y-%m-%d')) & (dati['data'] <= datetime.datetime.strptime(stop_date,'%Y-%m-%d'))
-    dati = dati.loc[ind,:].drop(['id','insertdate','chilometri_last','chilometri_delta'],axis=1).copy()
+    auto_selezionata = 'Fiesta'
+    ind = (dati['data'] >= datetime.datetime.strptime(start_date,'%Y-%m-%d')) & \
+            (dati['data'] <= datetime.datetime.strptime(stop_date,'%Y-%m-%d')) & \
+            (dati['auto'] == auto_selezionata)
+    dati_filt = dati.loc[ind,:].drop(['id','insertdate','chilometri_last','chilometri_delta'],axis=1).reset_index(drop=True).copy()
     
-#    # Grafico
-#    chart = Highchart(width = 600, height = 500)
-#    dff=[]
-#    for i in range(len(dati)):
-#        dff.append(str(dati.anno[i])+'/'+str(dati.mese[i]))
-#    chart.set_options('xAxis', {'categories': dff, 'gridLineWidth': 1})
-#    chart.set_options('tooltip', {'formatter': 'default_tooltip'})
-#    chart.set_options('title', {'text': 'Statistiche mensili allenamenti'})
-#    chart.add_data_set(dati.Nvolte.values.tolist(), series_type='bar', name='Numero allenamenti')
-#    chart.add_data_set(dati.media_metri.values.tolist(), series_type='line', name='Media metri')
-#    chart.add_data_set(dati.somma_metri.values.tolist(), series_type='bar', name='Somma metri')
-#    chart.htmlcontent;
+    # Grafico
+    chart = Highchart(width = 600, height = 500)
+    chart.add_data_set(dati_filt[['data','euro al litro']].values.tolist(), series_type='line', name='Prezzo (€/litro)')
+    chart.add_data_set(dati_filt[['data','chilometri con un litro']].values.tolist(), series_type='line', name='km con un litro')
+    chart.add_data_set(dati_filt[['data','chilometri con un litro CUM']].values.tolist(), series_type='line', name='km con un litro avg')
+    
+    chart.set_options('xAxis', {'type': 'datetime', 'gridLineWidth': 1})
+#    chart.set_options('chart', {'backgroundColor':'transparent'})
+    chart.set_options('tooltip', {'formatter': 'default_tooltip'})
+    chart.set_options('title', {'text': 'Statistiche consumo'})
+    chart.htmlcontent;
     
     return render_template('gas_stat.html', start_date=start_date, stop_date=stop_date, 
-                           df1=dati.to_html(classes='table',index=False,escape=True).replace('<th>','<th style = "background-color: #000099"	>')) 
-#                               fig1_head=chart.htmlheader, fig1_body=chart.content)
+                           df1=dati_filt.to_html(classes='table',index=False,escape=True).replace('<th>','<th style = "background-color: #000099"	>'), 
+                               fig1_head=chart.htmlheader, fig1_body=chart.content)
 
 
 @gas_flask.route('/rif/insert/<int:auto_id>', methods=['GET', 'POST'])
